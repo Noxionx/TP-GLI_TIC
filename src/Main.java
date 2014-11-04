@@ -20,7 +20,7 @@ public class Main extends JFrame{
 	
 
 	public static void main(String[] args){
-		IModel mod = new Model();
+
 		List<IField> fields = new ArrayList<IField>();
 		for(int i=0; i<4; i++){
 			IField field = new Field();
@@ -29,13 +29,20 @@ public class Main extends JFrame{
 			field.setValue(i*10 + 5);
 			fields.add(field);
 		}
-		mod.setFields(fields);
+		IModel mod = new Model("Model test", fields);
 		for(int i=0; i<4; i++){
 			System.out.println(mod.getFields().get(i).getTitle() + mod.getFields().get(i).getDetail() + " : " + mod.getFields().get(i).getValue());
 		}
 		MainView mainView = new MainView(mod);
 		mainView.setVisible(true);
-		
+		try {
+			Thread.sleep(1000);
+			mod.setTitle("Model test : nouveau nom");
+			mod.getFields().get(0).setValue(33);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 	}
 
 }

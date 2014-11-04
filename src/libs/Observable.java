@@ -1,9 +1,9 @@
 package libs;
 
 public interface Observable {
-
-	void addObserver(Observer o);
-	void removeObserver(Observer o);
-	void notifyObservers();
+	
+	public void addObserver(Observer o);
+	public void removeObserver(Observer o);
+	public void notifyObservers();
 	
 }

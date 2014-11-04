@@ -22,9 +22,18 @@ public class BaseComponent extends JComponent implements Observer{
 	private static final long serialVersionUID = 1L;
 	
 	private IModel model;
+	private Color[] colors = {
+		Color.cyan,
+		Color.blue,
+		Color.pink,
+		Color.red,
+		Color.orange,
+		Color.green
+	};
 	
 	public BaseComponent(IModel model){
 		this.model = model;
+		model.addObserver(this);
 	}
 
 	@Override
@@ -34,21 +43,36 @@ public class BaseComponent extends JComponent implements Observer{
 		for(int i=0; i<arcList.size(); i++){			
 		    g2.setColor(Color.gray);
 		    g2.draw(arcList.get(i));
-		    if(i==0){
-		    	g2.setColor(Color.red);
-		    }
-		    else{
-		    	g2.setColor(Color.blue);
-		    }
+		    g2.setColor(colors[i]);
 		    g2.fill(arcList.get(i));
-		}	    
+		}	
+		Arc2D.Float whiteArc = new Arc2D.Float();
+		whiteArc.setFrame(250,150,300,300);
+		whiteArc.setAngleStart(0);
+		whiteArc.setAngleExtent(360);
+		g2.setColor(Color.gray);
+	    g2.draw(whiteArc);
+	    g2.setColor(Color.white);
+	    g2.fill(whiteArc);
+		Arc2D.Float centerArc = new Arc2D.Float();
+		centerArc.setFrame(300,200,200,200);
+		centerArc.setAngleStart(0);
+		centerArc.setAngleExtent(360);
+		g2.setColor(Color.gray);
+	    g2.draw(centerArc);
+	    g2.fill(centerArc);
+	    Font font = new Font("Serif", Font.PLAIN, 16);
+	    g2.setFont(font);
+	    g2.setColor(Color.black);
+	    g2.drawString(model.getTitle(), 350, 280);
 	}
 
 	@Override
 	public void refresh(Observable o) {
-		
-		
+		this.model = (IModel) o;
+		paintComponent(getGraphics());
 	}
+	
 	public List<Arc2D.Float> generateArcs(IModel model){
 		List<Arc2D.Float> arcList = new ArrayList<Arc2D.Float>();
 		int totalValue = 0;

@@ -1,6 +1,8 @@
 package models;
 
-public interface IField {
+import libs.Observable;
+
+public interface IField extends Observable{
 	
 	String getTitle();
 	void setTitle(String title);
