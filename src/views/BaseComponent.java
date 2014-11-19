@@ -24,7 +24,9 @@ public class BaseComponent extends JComponent implements Observer{
 	
 	private IModel model;
 	private List<Arc2D.Float> arcList;
+	private Arc2D.Float whiteArc;
 	private Arc2D.Float centerBounds;
+	private Arc2D.Float selectedArc;
 	private Color[] colors = {
 		GooglePalette.RED,
 		GooglePalette.PINK,
@@ -43,7 +45,19 @@ public class BaseComponent extends JComponent implements Observer{
 	public BaseComponent(IModel model){
 		this.model = model;
 		model.addObserver(this);
+		initComponent();
 		arcList = generateArcs(model);
+	}
+	//Initialisation des arcs centraux (statiques)
+	public void initComponent(){
+		whiteArc = new Arc2D.Float();
+		whiteArc.setFrame(250,150,300,300);
+		whiteArc.setAngleStart(0);
+		whiteArc.setAngleExtent(360);
+		centerBounds = new Arc2D.Float();
+		centerBounds.setFrame(300,200,200,200);
+		centerBounds.setAngleStart(0);
+		centerBounds.setAngleExtent(360);
 	}
 	@Override
 	public void paintComponent(Graphics g){
@@ -52,56 +66,64 @@ public class BaseComponent extends JComponent implements Observer{
 	}
 	
 	void draw(Graphics g){
-		Graphics2D g2 = (Graphics2D) g; 
+		//Création de Graphics2D pour dessiner les arcs
+		Graphics2D g2D = (Graphics2D) g; 
+		//Rendu des arcs de données
 		for(int i=0; i<arcList.size(); i++){			
-		    g2.setColor(GooglePalette.GREY);
-		    g2.draw(arcList.get(i));
-		    g2.setColor(colors[i]);
-		    g2.fill(arcList.get(i));
+			drawArc(arcList.get(i), g2D, colors[i]);
 		}	
-		Arc2D.Float whiteArc = new Arc2D.Float();
-		whiteArc.setFrame(250,150,300,300);
-		whiteArc.setAngleStart(0);
-		whiteArc.setAngleExtent(360);
-		g2.setColor(GooglePalette.GREY);
-	    g2.draw(whiteArc);
-	    g2.setColor(Color.white);
-	    g2.fill(whiteArc);
-	    centerBounds = new Arc2D.Float();
-		centerBounds.setFrame(300,200,200,200);
-		centerBounds.setAngleStart(0);
-		centerBounds.setAngleExtent(360);
-		g2.setColor(GooglePalette.BLUE_GREY);
-	    g2.draw(centerBounds);
-	    g2.fill(centerBounds);
+		//Rendu de l'arc intermédiaire (séparation blanche)
+		drawArc(whiteArc, g2D, Color.WHITE);
+		//Rendu du cercle central (gris)
+		drawArc(centerBounds, g2D, GooglePalette.BLUE_GREY);
+		//Rendu du titre du model dans le cercle gris
 	    Font font = new Font("Serif", Font.PLAIN, 16);
-	    g2.setFont(font);
-	    g2.setColor(Color.black);
-	    g2.drawString(model.getTitle(), 350, 280);
+	    g2D.setFont(font);
+	    g2D.setColor(Color.black);
+	    g2D.drawString(model.getTitle(), 350, 280);
 	}
-
+	//Fonction de rendu d'un arc avec sa couleur
+	public void drawArc(Arc2D.Float arc, Graphics2D g, Color c){
+		g.setColor(c);
+		g.draw(arc);
+		g.fill(arc);
+	}
+	//Fonction de l'observer appelée lors d'un changement sur le model
 	@Override
 	public void refresh(Observable o) {
 		this.model = (IModel) o;
 		arcList = generateArcs(model);
 		repaint();
 	}
-	
+	//Fonction appelée lors d'un clic
 	public void processClick(int x, int y){
 		for(int i=0; i<arcList.size(); i++){
-			if(arcList.get(i).contains(x, y)&&!centerBounds.contains(x, y)){
-				arcList = generateArcs(model);
-				arcList.set(i, extendArc(arcList.get(i)));
+			//Si on a cliqué sur un arc (et pas au centre)
+			if(arcList.get(i).contains(x, y)&&!centerBounds.contains(x, y)){				
+				if(selectedArc!=null&&arcList.get(i)==selectedArc){
+					selectedArc = null;
+					//On regénère les arcs par défaut (non sélectionnés)
+					arcList = generateArcs(model);
+				}
+				else{
+					//On regénère les arcs par défaut (non sélectionnés)
+					arcList = generateArcs(model);
+					//On augmente les dimentions de l'arc sélectionné
+					arcList.set(i, extendArc(arcList.get(i)));
+					selectedArc = arcList.get(i);
+				}
+				//Actualisation de la vue
 				repaint();
 			}
 		}
 		
 	}
+	//Fonction de changement de dimentions (plus grandes) pour un arc sélectionné
 	public Arc2D.Float extendArc(Arc2D.Float arc){
 		arc.setFrame(180,80,440,440);
 		return arc;
 	}
-	
+	//Fonction de génération des arcs en fonction des données du model
 	public List<Arc2D.Float> generateArcs(IModel model){
 		List<Arc2D.Float> arcList = new ArrayList<Arc2D.Float>();
 		int totalValue = 0;
