@@ -13,6 +13,7 @@ public class MainView extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private BaseComponent baseComponent;
 	
 
 	public MainView(IModel model) {
@@ -22,9 +23,12 @@ public class MainView extends JFrame {
 				System.exit(0);
 			}
 		});
-		BaseComponent component = new BaseComponent(model);
-		add(component);
+		this.baseComponent = new BaseComponent(model);
+		add(this.baseComponent);
 		
+	}
+	public BaseComponent getBaseComponent(){
+		return this.baseComponent;
 	}
 
 }

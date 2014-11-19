@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.swing.JComponent;
 
+import libs.GooglePalette;
 import libs.Observable;
 import libs.Observer;
 import models.IModel;
@@ -22,26 +23,38 @@ public class BaseComponent extends JComponent implements Observer{
 	private static final long serialVersionUID = 1L;
 	
 	private IModel model;
+	private List<Arc2D.Float> arcList;
+	private Arc2D.Float centerBounds;
 	private Color[] colors = {
-		Color.cyan,
-		Color.blue,
-		Color.pink,
-		Color.red,
-		Color.orange,
-		Color.green
+		GooglePalette.RED,
+		GooglePalette.PINK,
+		GooglePalette.PURPLE,
+		GooglePalette.INDIGO,
+		GooglePalette.BLUE,
+		GooglePalette.CYAN,
+		GooglePalette.TEAL,
+		GooglePalette.GREEN,
+		GooglePalette.LIME,
+		GooglePalette.YELLOW,
+		GooglePalette.ORANGE,
+		GooglePalette.BROWN
 	};
 	
 	public BaseComponent(IModel model){
 		this.model = model;
 		model.addObserver(this);
+		arcList = generateArcs(model);
 	}
-
 	@Override
 	public void paintComponent(Graphics g){
-		List<Arc2D.Float> arcList = generateArcs(model);
+		super.paintComponent(g);
+		draw(g);
+	}
+	
+	void draw(Graphics g){
 		Graphics2D g2 = (Graphics2D) g; 
 		for(int i=0; i<arcList.size(); i++){			
-		    g2.setColor(Color.gray);
+		    g2.setColor(GooglePalette.GREY);
 		    g2.draw(arcList.get(i));
 		    g2.setColor(colors[i]);
 		    g2.fill(arcList.get(i));
@@ -50,17 +63,17 @@ public class BaseComponent extends JComponent implements Observer{
 		whiteArc.setFrame(250,150,300,300);
 		whiteArc.setAngleStart(0);
 		whiteArc.setAngleExtent(360);
-		g2.setColor(Color.gray);
+		g2.setColor(GooglePalette.GREY);
 	    g2.draw(whiteArc);
 	    g2.setColor(Color.white);
 	    g2.fill(whiteArc);
-		Arc2D.Float centerArc = new Arc2D.Float();
-		centerArc.setFrame(300,200,200,200);
-		centerArc.setAngleStart(0);
-		centerArc.setAngleExtent(360);
-		g2.setColor(Color.gray);
-	    g2.draw(centerArc);
-	    g2.fill(centerArc);
+	    centerBounds = new Arc2D.Float();
+		centerBounds.setFrame(300,200,200,200);
+		centerBounds.setAngleStart(0);
+		centerBounds.setAngleExtent(360);
+		g2.setColor(GooglePalette.BLUE_GREY);
+	    g2.draw(centerBounds);
+	    g2.fill(centerBounds);
 	    Font font = new Font("Serif", Font.PLAIN, 16);
 	    g2.setFont(font);
 	    g2.setColor(Color.black);
@@ -70,7 +83,23 @@ public class BaseComponent extends JComponent implements Observer{
 	@Override
 	public void refresh(Observable o) {
 		this.model = (IModel) o;
-		paintComponent(getGraphics());
+		arcList = generateArcs(model);
+		repaint();
+	}
+	
+	public void processClick(int x, int y){
+		for(int i=0; i<arcList.size(); i++){
+			if(arcList.get(i).contains(x, y)&&!centerBounds.contains(x, y)){
+				arcList = generateArcs(model);
+				arcList.set(i, extendArc(arcList.get(i)));
+				repaint();
+			}
+		}
+		
+	}
+	public Arc2D.Float extendArc(Arc2D.Float arc){
+		arc.setFrame(180,80,440,440);
+		return arc;
 	}
 	
 	public List<Arc2D.Float> generateArcs(IModel model){

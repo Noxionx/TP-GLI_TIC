@@ -3,11 +3,12 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
-import views.MainView;
 import models.Field;
 import models.IField;
 import models.IModel;
 import models.Model;
+import views.MainView;
+import controllers.MainController;
 
 
 public class Main extends JFrame{
@@ -35,8 +36,9 @@ public class Main extends JFrame{
 		}
 		MainView mainView = new MainView(mod);
 		mainView.setVisible(true);
+		MainController ctrl = new MainController(mod, mainView);
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(3000);
 			mod.setTitle("Model test : nouveau nom");
 			mod.getFields().get(0).setValue(33);
 		} catch (InterruptedException e) {
