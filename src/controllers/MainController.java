@@ -18,10 +18,10 @@ public class MainController {
 	public void initBinding(){
 		view.addMouseListener(new MouseAdapter() {
 		     @Override
-		     public void mousePressed(MouseEvent e) {
+		     public void mouseClicked(MouseEvent e) {
 		        view.getBaseComponent().processClick(e.getX(), e.getY());
 		     }
-		  });
+		});
 	}
 	public IModel getModel() {
 		return model;
